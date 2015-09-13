@@ -1,0 +1,25 @@
+{
+  "manifest_version": 2,
+
+  "name": "SmartBuy",
+  "description": "Helps you make sure the site you are buying from is reliable",
+  "version": "0.1",
+
+  "page_action": {
+    "default_icon": {
+      "19": "Assets/icon.png",
+      "38": "Assets/icon.png"
+    },
+    "default_title": "SmartBuy",
+    "default_popup": "Views/popup.html"
+  },
+
+  "background": {
+    "persistent": false,
+    "scripts": ["Script/background.js"]
+  },
+
+  "permissions": [
+    "webNavigation"
+  ]
+}
