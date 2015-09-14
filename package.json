@@ -1,0 +1,29 @@
+{
+  "name": "comprebem",
+  "version": "0.0.1",
+  "description": "Helps you make sure the site you are buying from is reliable",
+  "main": "Script/background.js",
+  "dependencies": {
+    "async": "^1.4.2",
+    "dexie": "^1.1.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://vasvas10@bitbucket.org/vasvas10/comprebem.git"
+  },
+  "keywords": [
+    "compre",
+    "bem",
+    "reclame",
+    "aqui",
+    "reclameaqui",
+    "procon"
+  ],
+  "author": "Vítor Augusto da Silva Vasconcellos",
+  "license": "SEE LICENSE IN License.txt",
+  "homepage": "https://bitbucket.org/vasvas10/comprebem#readme"
+}
