@@ -1,25 +1,8 @@
 <!doctype html>
-<!--
- This page is shown when the extension button is clicked, because the
- "browser_action" field in manifest.json contains the "default_popup" key with
- value "popup.html".
- -->
 <html>
   <head>
-    <title>Getting Started Extension's Popup</title>
-    <style>
-      body {
-        font-family: "Segoe UI", "Lucida Grande", Tahoma, sans-serif;
-        font-size: 100%;
-      }
-      #status {
-        /* avoid an excessively wide status text */
-        white-space: pre;
-        text-overflow: ellipsis;
-        overflow: hidden;
-        max-width: 400px;
-      }
-    </style>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title id="title">Compre Bem</title>
 
     <!--
       - JavaScript and HTML must be in separate files: see our Content Security
@@ -27,11 +10,15 @@
       -
       - [1]: https://developer.chrome.com/extensions/contentSecurityPolicy
      -->
-    <script src="../Script/popup.js"></script>
+      <script src="../lib/Material-Lite/material.min.js"></script>
+      <script src="../Script/popup.js"></script>
+
+      <!-- CSS Style Link -->
+      <link rel="stylesheet" href="../lib/Material-Lite/RobotoTTF/Roboto.css"/>
+      <link rel="stylesheet" href="../lib/Material-Lite/material.min.css"/>
+      <link rel="stylesheet" href="../Style/popup.css"/>
   </head>
+
   <body>
-    <div id="status"></div>
-    <img id="image-result" hidden>
   </body>
 </html>
-

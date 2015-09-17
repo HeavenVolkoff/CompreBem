@@ -1932,7 +1932,7 @@ var async = require("async");
                                         }else{
                                             reclamaAquiVerifier = false;
                                             console.log("A Empresa " + result + " Não está cadastrada no ReclameAqui");
-                                            callback();
+                                            callback(null, result);
                                         }
                                     });
                                 }
@@ -1949,8 +1949,22 @@ var async = require("async");
                     }
 
                     console.log(result);
-                    if(result.result.procon || result.result.reclameAqui){
+                    if(result.result.procon || typeof result.result.reclameAqui === "object"){
+                        result.result.type = "result";
+                        chrome.runtime.sendMessage(result.result, function(){
+                            console.log("mesagem Recebida e processada");
+                        });
+
                         chrome.pageAction.show(details.tabId);
+                        if(chrome.runtime.lastError){
+                            console.log("Tab don't Exists again, wait...");
+                            chrome.webNavigation.onTabReplaced.addListener(
+                                function tabReplace(){
+                                    chrome.webNavigation.onTabReplaced.removeListener(tabReplace);
+                                    chrome.pageAction.show(details.tabId);
+                                }
+                            );
+                        }
                     }
                 }
             );

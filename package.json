@@ -1,6 +1,6 @@
 {
   "name": "comprebem",
-  "version": "0.0.1",
+  "version": "0.9.9",
   "description": "Helps you make sure the site you are buying from is reliable",
   "main": "Script/background.js",
   "dependencies": {
@@ -24,6 +24,6 @@
     "procon"
   ],
   "author": "Vítor Augusto da Silva Vasconcellos",
-  "license": "SEE LICENSE IN License.txt",
+  "license": "SEE LICENSE IN LICENSE",
   "homepage": "https://bitbucket.org/vasvas10/comprebem#readme"
 }
