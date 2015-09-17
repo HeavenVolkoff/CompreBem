@@ -38,7 +38,7 @@ module.exports.download = function download(){
             return this;
         },
         done: function(){
-            console.log("Downloading: " + this._url);
+            //console.log("Downloading: " + this._url);
 
             this.request.addEventListener("load", this._success);
             this.request.addEventListener("error", this._error);

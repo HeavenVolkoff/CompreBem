@@ -176,15 +176,15 @@ ProconList.prototype.exists = function exists(name, callback){
     "use strict";
 
     var schemeIdentPos = name.indexOf('://');
-    if(schemeIdentPos !== -1){
-        name = name.substr(schemeIdentPos + 3 + (name.indexOf("www") !== -1? 4 : 0));
-    }
-
-    name = name.split("/")[0];
+    name = name.substr(/:\/\/www/.test(name)? schemeIdentPos + 7 : schemeIdentPos !== -1 ? schemeIdentPos + 3 : /^www./.test(name)? 4 : 0).split("/")[0];
 
     this.db.webSites
         .where("url")
         .equalsIgnoreCase(name)
         .count()
-        .then(callback);
+        .then(function(count){
+            callback(null, name, !!count);
+        }).catch(function(error){
+            callback(error, name);
+        });
 };
