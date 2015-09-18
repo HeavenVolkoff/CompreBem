@@ -1,0 +1,81 @@
+html{
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+    height: 580px;
+    width: 615px;
+}
+
+.valign-wrapper {
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-align: center;
+    -ms-flex-align: center;
+    -webkit-align-items: center;
+    align-items: center;
+}
+
+.center {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.full{
+    width: 100%;
+    height: 100%;
+}
+
+.font12 {
+    font-size: 12px;
+}
+
+p{
+    margin: 0 0 7px;
+}
+
+#reputation{
+    text-align: center;
+}
+
+#solvedProblems{
+    height: 100px;
+    margin: 0 auto;
+    width: 150px;
+}
+
+.demo-card-square.mdl-card {
+    margin: 0 auto;
+    width: 150px;
+    height: 125px;
+    min-height: 100px;
+}
+
+.demo-card-square.mdl-card.grade {
+    height: 56px;
+    min-height: 0px;
+}
+
+.demo-card-square > .mdl-card__title {
+    color: #fff;
+    background-color: #46B6AC;
+}
+.mdl-card__supporting-text{
+    padding: 6px 0px 10px 0px;
+    margin: 0 auto;
+    text-align: center;
+    font-weight: 700;
+    font-size: larger;
+}
+
+.icon{
+    font-size: 60px;
+    text-align: center;
+    margin: 0 auto;
+}
+
+.icon.grade{
+    font-size: 45px;
+    text-align: left;
+    margin: 0;
+}

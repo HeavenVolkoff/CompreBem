@@ -1718,7 +1718,7 @@ var url = require("url");
  *  URL: http://ws04.reclameaqui.com.br/reclameaqui-api-empresa/rest/empresa/{id}
  *  id: ID
  *  ct: (????)
- *  pr: Tempo (????)
+ *  pr: Tempo desde a ultima avalia��o (const: 12 meses)
  *  nm: Nome da Empresa
  *  rc: Numero de Reclamacaoes
  *  ps: Porcentagem de Problemas Solucionados
@@ -1726,7 +1726,7 @@ var url = require("url");
  *  nt: Nota Medio do Consumidor
  *  sl:{
  *      0 => Em Analise
- *      1 => RA100 (a.k.a Expetacular)
+ *      1 => RA1000 (a.k.a Expetacular)
  *      2 => Otimo
  *      3 => Bom
  *      4 => Regular
@@ -1739,7 +1739,7 @@ var url = require("url");
  *
  *  URL: http://ws04.reclameaqui.com.br/reclameaqui-api-empresa/rest/empresa/autocomplete/?q={NomeDaEmpresaAPesquisar}
  */
-function ReclameAqui(){}
+function ReclameAqui(){} //TODO: implement DB for most common sites
 
 Object.defineProperties(ReclameAqui, {
     queryUrl: {
@@ -1857,6 +1857,7 @@ var async = require("async");
     var reclamaAquiVerifier = false;
     var proconList = global.proconList = new ProconList();
     var reclameAqui = global.reclameaqui = new ReclameAqui();
+    var tabs = {};
 
     function onPageLoad(details){
         if(details.frameId === 0){
@@ -1896,13 +1897,14 @@ var async = require("async");
                                     });
                                 },
 
-                                reclameAqui: function(callback){
+                                reclameAqui: function(callback){ //TODO: remake using switch
                                     reclameAqui.query(details.url, function(err, result){
                                         if(err !== null){
                                             console.log("Error ao verificar empresa no Reclame Aqui");
                                             callback(err);
 
                                         }else if(typeof result === "object"){
+                                            result.ps =  Number(result.ps.split(",").join(".")); //Fix wrong number format
                                             reclamaAquiVerifier = false;
                                             callback(null, result);
 
@@ -1950,18 +1952,19 @@ var async = require("async");
 
                     console.log(result);
                     if(result.result.procon || typeof result.result.reclameAqui === "object"){
-                        result.result.type = "result";
-                        chrome.runtime.sendMessage(result.result, function(){
-                            console.log("mesagem Recebida e processada");
-                        });
+                        result.result.type = "ui";
 
-                        chrome.pageAction.show(details.tabId);
-                        if(chrome.runtime.lastError){
+                        try{
+                            chrome.pageAction.show(details.tabId);
+                            tabs[details.tabId] = result.result;
+
+                        }catch(err){
                             console.log("Tab don't Exists again, wait...");
                             chrome.webNavigation.onTabReplaced.addListener(
                                 function tabReplace(){
                                     chrome.webNavigation.onTabReplaced.removeListener(tabReplace);
                                     chrome.pageAction.show(details.tabId);
+                                    tabs[details.tabId] = result.result;
                                 }
                             );
                         }
@@ -1976,6 +1979,26 @@ var async = require("async");
     chrome.webNavigation.onBeforeNavigate.addListener(onPageLoad, {
         schemes: ["http", "https"]
     });
+
+    chrome.runtime.onConnect.addListener(
+        function(port) {
+            if(port.name === "popup"){
+                console.log("port established");
+
+                port.onMessage.addListener(
+                    function(msg){
+                        switch (msg.type){
+                            case "ui":
+                                chrome.tabs.getSelected(function(tab){
+                                    port.postMessage(tabs[tab.id]);
+                                });
+                                break;
+                        }
+                    }
+                );
+            }
+        }
+    );
 })();
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"./ProconList.js":7,"./ReclameAqui.js":8,"async":12}],10:[function(require,module,exports){

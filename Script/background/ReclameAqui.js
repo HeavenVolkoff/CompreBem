@@ -11,7 +11,7 @@ var url = require("url");
  *  URL: http://ws04.reclameaqui.com.br/reclameaqui-api-empresa/rest/empresa/{id}
  *  id: ID
  *  ct: (????)
- *  pr: Tempo (????)
+ *  pr: Tempo desde a ultima avaliação (const: 12 meses)
  *  nm: Nome da Empresa
  *  rc: Numero de Reclamacaoes
  *  ps: Porcentagem de Problemas Solucionados
@@ -19,7 +19,7 @@ var url = require("url");
  *  nt: Nota Medio do Consumidor
  *  sl:{
  *      0 => Em Analise
- *      1 => RA100 (a.k.a Expetacular)
+ *      1 => RA1000 (a.k.a Expetacular)
  *      2 => Otimo
  *      3 => Bom
  *      4 => Regular
@@ -32,7 +32,7 @@ var url = require("url");
  *
  *  URL: http://ws04.reclameaqui.com.br/reclameaqui-api-empresa/rest/empresa/autocomplete/?q={NomeDaEmpresaAPesquisar}
  */
-function ReclameAqui(){}
+function ReclameAqui(){} //TODO: implement DB for most common sites
 
 Object.defineProperties(ReclameAqui, {
     queryUrl: {

@@ -2,23 +2,83 @@
 <html>
   <head>
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title id="title">Compre Bem</title>
-
-    <!--
-      - JavaScript and HTML must be in separate files: see our Content Security
-      - Policy documentation[1] for details and explanation.
-      -
-      - [1]: https://developer.chrome.com/extensions/contentSecurityPolicy
-     -->
-      <script src="../lib/Material-Lite/material.min.js"></script>
-      <script src="../Script/popup.js"></script>
+      <title>Compre Bem</title>
 
       <!-- CSS Style Link -->
+      <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
       <link rel="stylesheet" href="../lib/Material-Lite/RobotoTTF/Roboto.css"/>
+      <link rel="stylesheet" href="../lib/icomoon/style.css"/>
       <link rel="stylesheet" href="../lib/Material-Lite/material.min.css"/>
       <link rel="stylesheet" href="../Style/popup.css"/>
   </head>
 
   <body>
+  <!-- Always shows a header, even in smaller screens. -->
+  <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+      <header class="mdl-layout__header">
+          <div class="mdl-layout__header-row">
+              <!-- Title -->
+              <span class="mdl-layout-title" id="title"></span>
+              <!-- Add spacer, to align navigation to the right -->
+              <div class="mdl-layout-spacer"></div>
+              <!-- Navigation. We hide it in small screens. -->
+              <nav class="mdl-navigation mdl-layout--large-screen-only">
+                  <a class="mdl-navigation__link" href="">Reclamar</a>
+              </nav>
+          </div>
+      </header>
+      <div class="mdl-layout__drawer">
+          <span class="mdl-layout-title">Compre Bem</span>
+          <nav class="mdl-navigation">
+              <!--TODO: Make configuration Drawer-->
+              <a class="mdl-navigation__link" href="">Configs</a>
+          </nav>
+      </div>
+      <main class="mdl-layout__content valign-wrapper">
+           <!-- Your content goes here -->
+           <div class="mdl-grid full">
+               <div class="mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
+                   <div class="mdl-cell mdl-cell--12-col mdl-grid">
+                       <div class="mdl-cell mdl-cell--4-col mdl-grid">
+                           <div class="mdl-cell mdl-cell--12-col">
+                               <h6>Recomendação:</h6>
+                               <div class="demo-card-square mdl-card mdl-shadow--2dp">
+                                   <div class="mdl-card__title mdl-card--expand">
+                                       <span class="icon" id="reputationIcon"></span>
+                                   </div>
+                                   <div class="mdl-card__supporting-text" id="reputation"></div>
+                               </div>
+                           </div>
+                           <div class="mdl-cell mdl-cell--12-col">
+                               <h6>Problemas Solucionados:</h6>
+                               <iframe id="solvedProblems" src="../Views/sandbox.html"></iframe>
+                           </div>
+                       </div>
+                       <div class="mdl-cell mdl-cell--4-col mdl-grid">
+                           <div class="mdl-cell mdl-cell--12-col">
+                               <h6>Nota do Consumidor:</h6>
+                               <div class="demo-card-square mdl-card mdl-shadow--2dp grade">
+                                   <div class="mdl-card__title mdl-card--expand">
+                                       <span class="icon icon-user grade" id="grade"></span>
+                                   </div>
+                               </div>
+                           </div>
+                           <div class="mdl-cell mdl-cell--12-col">
+                               <h6>Tempo Médio de Resposta:</h6>
+                               <h4 class="center" id="answerTime"></h4>
+                           </div>
+                           <div class="mdl-cell mdl-cell--12-col">
+                               <h6>Total de reclamações:</h6>
+                               <h4 class="center" id="complaints"></h4>
+                           </div>
+                       </div>
+                   </div>
+               </div>
+           </div>
+      </main>
+  </div>
+
+  <script src="../lib/Material-Lite/material.min.js" defer></script>
+  <script src="../Script/popup.js" defer></script>
   </body>
 </html>
