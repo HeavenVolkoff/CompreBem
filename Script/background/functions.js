@@ -2,6 +2,18 @@
  * Created by Vítor Augusto da Silva Vasconcellos on 9/13/15.
  */
 
+module.exports.cleanUrl = function cleanUrl(url){
+    "use strict";
+
+    if(typeof url !== "string"){
+        return "";
+    }
+
+    var schemeIdentPos = url.indexOf('://');
+    var wwwIdentPos = url.indexOf('www.');
+    return url.substr(schemeIdentPos !== -1? (wwwIdentPos === schemeIdentPos + 3? wwwIdentPos + 4 : schemeIdentPos + 3) : (wwwIdentPos === 0? 4 : 0)).split("/")[0];
+};
+
 module.exports.download = function download(){
     "use strict";
 

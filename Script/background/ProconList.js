@@ -172,19 +172,18 @@ ProconList.prototype.updateDB = function updateDB(list){
     );
 };
 
-ProconList.prototype.exists = function exists(name, callback){
+ProconList.prototype.exists = function exists(url, callback){
     "use strict";
 
-    var schemeIdentPos = name.indexOf('://');
-    name = name.substr(/:\/\/www/.test(name)? schemeIdentPos + 7 : schemeIdentPos !== -1 ? schemeIdentPos + 3 : /^www./.test(name)? 4 : 0).split("/")[0];
+    url = func.cleanUrl(url);
 
     this.db.webSites
         .where("url")
-        .equalsIgnoreCase(name)
+        .equalsIgnoreCase(url)
         .count()
         .then(function(count){
-            callback(null, name, !!count);
+            callback(null, url, !!count);
         }).catch(function(error){
-            callback(error, name);
+            callback(error, url);
         });
 };

@@ -14,10 +14,13 @@
 var ProconList = require("./ProconList.js");
 var ReclameAqui = require("./ReclameAqui.js");
 var async = require("async");
+var func = require("./functions.js");
 
 (function(){
     "use strict";
 
+    var iframe = document.createElement('iframe');
+        document.body.appendChild(iframe);
     var reclamaAquiVerifier = false;
     var proconList = global.proconList = new ProconList();
     var reclameAqui = global.reclameaqui = new ReclameAqui();
@@ -25,88 +28,111 @@ var async = require("async");
 
     function onPageLoad(details){
         if(details.frameId === 0){
+
+            if(tabs[details.tabId] && tabs[details.tabId].url === func.cleanUrl(details.url)){
+                console.log("Entry Already existent");
+                chrome.pageAction.show(details.tabId);
+                return;
+            }
+
             async.parallel(
                 {
-                    processId: function(callback){
-                        chrome.tabs.get(
-                            details.tabId,
-                            function(){
-                                if(chrome.runtime.lastError){
-                                    console.log("Tab don't Exists, wait...");
-                                    chrome.webNavigation.onTabReplaced.addListener(
-                                        function tabReplace(){
-                                            chrome.webNavigation.onTabReplaced.removeListener(tabReplace);
-                                            callback();
+                    /**
+                     * Function to ensure the tab id is correct and not some pre-rendering background process tab
+                     * @param callback
+                     */
+                    tabId: function verifyTabId(callback){
+                        chrome.tabs.query(
+                            {
+                                active: true
+                            },
+                            function(tabs){
+                                chrome.tabs.get(
+                                    details.tabId,
+                                    function(tab){
+                                        if(chrome.runtime.lastError){
+                                            console.log("Tab don't Exists, wait...");
+                                            chrome.tabs.onReplaced.addListener(
+                                                function tabReplace(addedTabId, removedTabId){
+                                                    console.log("Tab Replaced, attempting again...");
+                                                    if(removedTabId === tabs[0].id){
+                                                        chrome.tabs.onReplaced.removeListener(tabReplace);
+                                                        callback(null, addedTabId);
+                                                    }
+                                                }
+                                            );
+                                        }else{
+                                            console.log("Tab exists, go...");
+                                            callback(null, tab.id);
                                         }
-                                    );
-                                }else{
-                                    console.log("Tab exists, go");
-                                    callback();
-                                }
+                                    }
+                                );
                             }
                         );
                     },
-                    result: function(callback){
-                        async.parallel(
-                            {
-                                procon: function(callback){
-                                    proconList.exists(details.url, function(err, name, exists){
-                                        if(err !== null){
-                                            console.log("Error ao verificar lista do procon");
-                                            callback(err);
-                                        }
-
-                                        console.log(name + (exists? " está contido na lista do Procon, e não é recomendado" : " não está contido na lista do Procon"));
-                                        callback(null, exists);
-                                    });
-                                },
-
-                                reclameAqui: function(callback){ //TODO: remake using switch
-                                    reclameAqui.query(details.url, function(err, result){
-                                        if(err !== null){
-                                            console.log("Error ao verificar empresa no Reclame Aqui");
-                                            callback(err);
-
-                                        }else if(typeof result === "object"){
-                                            result.ps =  Number(result.ps.split(",").join(".")); //Fix wrong number format
-                                            reclamaAquiVerifier = false;
-                                            callback(null, result);
-
-                                        }else if(typeof result === "function"){
-
-                                            if(!reclamaAquiVerifier){
-                                                console.log("Can't reach ReclameAqui, appending iframe and trying again...");
-                                                reclamaAquiVerifier = true;
-
-                                                var iframe = document.createElement('iframe');
-                                                iframe.setAttribute("src", ReclameAqui.queryUrl);
-                                                iframe.setAttribute("style", "display: none");
-                                                document.body.appendChild(iframe);
-
-                                                setTimeout(function(){
-                                                    console.log("Response arrived");
-                                                    reclameAqui.query(details.url, result);
-                                                },250);
-
-                                            }else{
-                                                console.log("Trying again...");
-                                                setTimeout(function(){
-                                                    reclameAqui.query(details.url, result);
-                                                },250);
-                                            }
-
-                                        }else{
-                                            reclamaAquiVerifier = false;
-                                            console.log("A Empresa " + result + " Não está cadastrada no ReclameAqui");
-                                            callback(null, result);
-                                        }
-                                    });
-                                }
-                            },
-                            function(err, result){
-                                callback(err, result);
+                    /**
+                     * Verify if procon has the site in it's list
+                     * @param callback
+                     */
+                    procon: function verifyProcon(callback){
+                        proconList.exists(details.url, function(err, name, exists){
+                            if(err !== null){
+                                console.log("Error ao verificar lista do procon");
+                                callback(err);
                             }
-                        );
+
+                            console.log(name + (exists? " está contido na lista do Procon, e não é recomendado" : " não está contido na lista do Procon"));
+                            callback(null, exists);
+                        });
+                    },
+                    /**
+                     * Get website informations from reclameAqui
+                     * @param callback
+                     */
+                    reclameAqui: function getReclameAqui(callback){
+                        reclameAqui.query(details.url, function(err, result){
+                            if(err !== null){
+                                console.log("Error ao verificar empresa no Reclame Aqui");
+                                callback(err);
+
+                            }
+
+                            switch (typeof result){
+                                case "object":
+                                    reclamaAquiVerifier = false;
+                                    iframe.src = "";
+                                    callback(null, result);
+
+                                    break;
+                                case "function":
+                                    if(!reclamaAquiVerifier){
+                                        console.log("Can't reach ReclameAqui, reloading iframe and trying again...");
+                                        reclamaAquiVerifier = true;
+
+                                        iframe.onload = function(){
+                                            console.log("Response arrived");
+                                            reclameAqui.query(details.url, result);
+                                            iframe.onload = null;
+                                        };
+                                        iframe.src = ReclameAqui.queryUrl;
+
+                                    }else{
+                                        console.log("Trying again...");
+                                        setTimeout(function(){
+                                            reclameAqui.query(details.url, result);
+                                        },250);
+                                    }
+
+                                    break;
+                                default:
+                                    reclamaAquiVerifier = false;
+                                    iframe.src = "";
+                                    console.log("A Empresa " + result + " Não está cadastrada no ReclameAqui");
+                                    callback(null, result);
+
+                                    break;
+                            }
+                        });
                     }
                 },
                 function(err, result){
@@ -115,23 +141,12 @@ var async = require("async");
                     }
 
                     console.log(result);
-                    if(result.result.procon || typeof result.result.reclameAqui === "object"){
-                        result.result.type = "ui";
+                    if(result.procon || typeof result.reclameAqui === "object" || result.tabId){
+                        result.type = "ui";
+                        result.url = func.cleanUrl(details.url);
 
-                        try{
-                            chrome.pageAction.show(details.tabId);
-                            tabs[details.tabId] = result.result;
-
-                        }catch(err){
-                            console.log("Tab don't Exists again, wait...");
-                            chrome.webNavigation.onTabReplaced.addListener(
-                                function tabReplace(){
-                                    chrome.webNavigation.onTabReplaced.removeListener(tabReplace);
-                                    chrome.pageAction.show(details.tabId);
-                                    tabs[details.tabId] = result.result;
-                                }
-                            );
-                        }
+                        chrome.pageAction.show(result.tabId);
+                        tabs[result.tabId] = result;
                     }
                 }
             );
@@ -153,9 +168,14 @@ var async = require("async");
                     function(msg){
                         switch (msg.type){
                             case "ui":
-                                chrome.tabs.getSelected(function(tab){
-                                    port.postMessage(tabs[tab.id]);
-                                });
+                                chrome.tabs.query(
+                                    {
+                                        active: true
+                                    },
+                                    function(activeTabs){
+                                        port.postMessage(tabs[activeTabs[0].id]);
+                                    }
+                                );
                                 break;
                         }
                     }

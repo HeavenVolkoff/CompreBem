@@ -51,40 +51,53 @@ module.exports = ReclameAqui;
 
 window.ReclameAqui = ReclameAqui;
 
-ReclameAqui.prototype.query = function query(name, callback){
+ReclameAqui.prototype.query = function query(url, callback){
     "use strict";
 
-    var schemeIdentPos = name.indexOf('://');
-    name = name.substr(/:\/\/www/.test(name)? schemeIdentPos + 7 : schemeIdentPos !== -1 ? schemeIdentPos + 3 : /^www./.test(name)? 4 : 0).split("/")[0];
-
     callback = typeof callback === "function"? callback : function(){};
+    url = func.cleanUrl(url);
     var self = this;
 
     var downloadUnsuccessful = function downloadUnsuccessful(){
         callback(new Error("Failed to download, Request Status: " + this.statusText));
     };
 
-    var downloadSuccessful = function downloadSuccessful(){
+    var queryURLSuccessful = function queryURLSuccessful(){
         var element = this.response.querySelector(".btn-tudo-sobre-empresa");
+
         if(element) {
             var enterpriseUrl = element.attributes[0].value;
-            var downloadSuccessfulVerify = function downloadSuccessfulVerify(){
+
+            var queryEnterpriseURLSuccessful = function queryEnterpriseURLSuccessful(){
                 var siteUrl = this.response.querySelector(".lista-info-company");
+
                 if(siteUrl && siteUrl.children.length > 0){
                     siteUrl = siteUrl.children[1].children[0].innerHTML;
 
-                    if(siteUrl.indexOf(name) !== -1){
-                        self.queryId(name, enterpriseUrl.split("/")[4], callback);
+                    if(siteUrl.indexOf(url) !== -1){
+                        var queryEnterpriseJSONSuccessful = function queryEnterpriseJSONSuccessful(){
+                            var enterpriseJSON = this.response;
+                            enterpriseJSON.ps =  Number(enterpriseJSON.ps.split(",").join(".")); //Fix wrong number format
+                            callback(null, enterpriseJSON);
+                        };
+
+                        func.download().url(ReclameAqui.restIdUrl + enterpriseUrl.split("/")[4])//id
+                            .type("json")
+                            .success(queryEnterpriseJSONSuccessful)
+                            .error(downloadUnsuccessful)
+                            .abort(downloadUnsuccessful)
+                            .done();
+
                         return;
                     }
                 }
 
-                callback(null, name);
+                callback(null, url);
             };
 
             func.download().url(enterpriseUrl)
                 .type("document")
-                .success(downloadSuccessfulVerify)
+                .success(queryEnterpriseURLSuccessful)
                 .error(downloadUnsuccessful)
                 .abort(downloadUnsuccessful)
                 .done();
@@ -94,33 +107,13 @@ ReclameAqui.prototype.query = function query(name, callback){
                 return;
             }
 
-            callback(null, name);
+            callback(null, url);
         }
     };
 
-    func.download().url(ReclameAqui.queryUrl+name)
+    func.download().url(ReclameAqui.queryUrl+url)
         .type("document")
-        .success(downloadSuccessful)
-        .error(downloadUnsuccessful)
-        .abort(downloadUnsuccessful)
-        .done();
-};
-
-ReclameAqui.prototype.queryId = function queryId(name, id, callback){
-    "use strict";
-
-    var downloadSuccessful = function downloadSuccessful(){
-        this.response.name = name;
-        callback(null, this.response);
-    };
-
-    var downloadUnsuccessful = function downloadUnsuccessful(){
-        callback(new Error("Failed to download, Request Status: " + this.statusText));
-    };
-
-    func.download().url(ReclameAqui.restIdUrl+id)
-        .type("json")
-        .success(downloadSuccessful)
+        .success(queryURLSuccessful)
         .error(downloadUnsuccessful)
         .abort(downloadUnsuccessful)
         .done();

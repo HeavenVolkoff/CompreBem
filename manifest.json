@@ -3,7 +3,7 @@
 
   "name": "CompreBem",
   "description": "Helps you make sure the site you are buying from is reliable",
-  "version": "0.999",
+  "version": "1.0",
 
   "page_action": {
     "default_icon": {
