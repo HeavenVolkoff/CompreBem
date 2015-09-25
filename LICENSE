@@ -1,10 +1,10 @@
 Copyright (c) 2015 Vítor Augusto da Silva Vasconcellos. All rights reserved.
 
-All the source code, with exception of the third-party libraries "async", "dexie"
-and "material-lite", and respective binaries generated from/with this source code
-are trademarks and/or registered trademarks of Vítor Augusto da Silva Vasconcellos.
+All the source code, and respective binaries generated from/with this source code,
+with exception of the third-party libraries "async", "dexie" and "material-lite",
+are Copyrighted to Vítor Augusto da Silva Vasconcellos.
 
-All other trademarks are property of their respective owners.
+All other trademarks/copyrights are property of their respective owners.
 
 The "async", "dexie" and "material-lite" third-party libraries complain to their
 respective licenses, which are included within this source code, located inside

@@ -55,7 +55,6 @@ ReclameAqui.prototype.query = function query(url, callback){
     "use strict";
 
     callback = typeof callback === "function"? callback : function(){};
-    url = func.cleanUrl(url);
     var self = this;
 
     var downloadUnsuccessful = function downloadUnsuccessful(){
@@ -92,7 +91,7 @@ ReclameAqui.prototype.query = function query(url, callback){
                     }
                 }
 
-                callback(null, url);
+                callback(null, null);
             };
 
             func.download().url(enterpriseUrl)
@@ -107,7 +106,7 @@ ReclameAqui.prototype.query = function query(url, callback){
                 return;
             }
 
-            callback(null, url);
+            callback(null, null);
         }
     };
 

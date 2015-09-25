@@ -20,7 +20,7 @@
 
   "background": {
     "persistent": false,
-    "scripts": ["Script/background.js"]
+    "scripts": ["Script/background.min.js"]
   },
 
   "permissions": [

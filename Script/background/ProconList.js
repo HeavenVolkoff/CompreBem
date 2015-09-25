@@ -175,15 +175,13 @@ ProconList.prototype.updateDB = function updateDB(list){
 ProconList.prototype.exists = function exists(url, callback){
     "use strict";
 
-    url = func.cleanUrl(url);
-
     this.db.webSites
         .where("url")
         .equalsIgnoreCase(url)
         .count()
         .then(function(count){
-            callback(null, url, !!count);
+            callback(null, !!count);
         }).catch(function(error){
-            callback(error, url);
+            callback(error);
         });
 };
