@@ -23,12 +23,20 @@
     "scripts": ["Script/background.min.js"]
   },
 
+  "content_scripts": [
+    {
+      "all_frames": true,
+      "matches": ["http://www.reclameaqui.com.br/busca/*"],
+      "js": ["Script/contentScript.js"],
+      "run_at": "document_start"
+    }
+  ],
+
   "permissions": [
     "unlimitedStorage",
     "webNavigation",
     "tabs",
     "*://*.reclameaqui.com.br/",
-    "http://sistemas.procon.sp.gov.br/",
-    "*://*/"
+    "http://sistemas.procon.sp.gov.br/"
   ]
 }

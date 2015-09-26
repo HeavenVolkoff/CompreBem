@@ -1821,6 +1821,48 @@ ReclameAqui.prototype.query = function query(url, callback){
         .abort(downloadUnsuccessful)
         .done();
 };
+
+ReclameAqui.prototype.queryEnterpriseUrl = function(enterpriseUrl, callback){
+    "use strict";
+
+    var downloadUnsuccessful = function downloadUnsuccessful(){
+        callback(new Error("Failed to download, Request Status: " + this.statusText));
+    };
+
+    var queryEnterpriseURLSuccessful = function queryEnterpriseURLSuccessful(){
+        var siteUrl = this.response.querySelector(".lista-info-company");
+
+        if(siteUrl && siteUrl.children.length > 0){
+            siteUrl = siteUrl.children[1].children[0].innerHTML;
+
+            if(siteUrl.indexOf(url) !== -1){
+                var queryEnterpriseJSONSuccessful = function queryEnterpriseJSONSuccessful(){
+                    var enterpriseJSON = this.response;
+                    enterpriseJSON.ps =  Number(enterpriseJSON.ps.split(",").join(".")); //Fix wrong number format
+                    callback(null, enterpriseJSON);
+                };
+
+                func.download().url(ReclameAqui.restIdUrl + enterpriseUrl.split("/")[4])//id
+                    .type("json")
+                    .success(queryEnterpriseJSONSuccessful)
+                    .error(downloadUnsuccessful)
+                    .abort(downloadUnsuccessful)
+                    .done();
+
+                return;
+            }
+        }
+
+        callback(null, null);
+    };
+
+    func.download().url(enterpriseUrl)
+        .type("document")
+        .success(queryEnterpriseURLSuccessful)
+        .error(downloadUnsuccessful)
+        .abort(downloadUnsuccessful)
+        .done();
+};
 },{"./functions.js":10,"url":6}],9:[function(require,module,exports){
 (function (global){
 /**
@@ -1846,7 +1888,6 @@ var func = require("./functions.js");
 
     var iframe = document.createElement('iframe');
         document.body.appendChild(iframe);
-    var reclamaAquiVerifierFlag = false;
     var proconList = global.proconList = new ProconList();
     var reclameAqui = global.reclameaqui = new ReclameAqui();
     var sites = {};
@@ -1959,26 +2000,28 @@ var func = require("./functions.js");
                             }
 
                             if(typeof result === "function"){
-                                if(!reclamaAquiVerifierFlag){
-                                    console.warn("Can't reach ReclameAqui, reloading iframe and trying again...");
-                                    reclamaAquiVerifierFlag = true;
+                                console.warn("Can't reach ReclameAqui, reloading iframe and trying again...");
 
-                                    iframe.onload = function(){
-                                        iframe.onload = null;
-                                        console.log("Response arrived");
-                                        reclameAqui.query(details.url, result);
-                                    };
-                                    iframe.src = ReclameAqui.queryUrl;
+                                chrome.runtime.onMessage.addListener(
+                                    function iframeOnMessage(message, sender){
+                                        if(sender.url.indexOf(url) !== -1){
+                                            if(message.type === "iframe" && message.EnterpriseURL){
+                                                console.log("Iframe message received");
+                                                reclameAqui.queryEnterpriseUrl(message.EnterpriseURL, result);
+                                            }else{
+                                                setTimeout(function(){
+                                                    console.log("Trying Again...");
+                                                    reclameAqui.query(url, result);
+                                                }, 250);
+                                            }
 
-                                }else{
-                                    console.warn("Trying again...");
-                                    setTimeout(function(){
-                                        reclameAqui.query(details.url, result);
-                                    },250);
-                                }
+                                            chrome.runtime.onMessage.removeListener(iframeOnMessage);
+                                        }
+                                    }
+                                );
+                                iframe.src = ReclameAqui.queryUrl+url;
                             }else{
                                 iframe.src = "";
-                                reclamaAquiVerifierFlag = false;
                                 callback(null, result);
                             }
                         });

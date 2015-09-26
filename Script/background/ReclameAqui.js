@@ -117,3 +117,45 @@ ReclameAqui.prototype.query = function query(url, callback){
         .abort(downloadUnsuccessful)
         .done();
 };
+
+ReclameAqui.prototype.queryEnterpriseUrl = function(enterpriseUrl, callback){
+    "use strict";
+
+    var downloadUnsuccessful = function downloadUnsuccessful(){
+        callback(new Error("Failed to download, Request Status: " + this.statusText));
+    };
+
+    var queryEnterpriseURLSuccessful = function queryEnterpriseURLSuccessful(){
+        var siteUrl = this.response.querySelector(".lista-info-company");
+
+        if(siteUrl && siteUrl.children.length > 0){
+            siteUrl = siteUrl.children[1].children[0].innerHTML;
+
+            if(siteUrl.indexOf(url) !== -1){
+                var queryEnterpriseJSONSuccessful = function queryEnterpriseJSONSuccessful(){
+                    var enterpriseJSON = this.response;
+                    enterpriseJSON.ps =  Number(enterpriseJSON.ps.split(",").join(".")); //Fix wrong number format
+                    callback(null, enterpriseJSON);
+                };
+
+                func.download().url(ReclameAqui.restIdUrl + enterpriseUrl.split("/")[4])//id
+                    .type("json")
+                    .success(queryEnterpriseJSONSuccessful)
+                    .error(downloadUnsuccessful)
+                    .abort(downloadUnsuccessful)
+                    .done();
+
+                return;
+            }
+        }
+
+        callback(null, null);
+    };
+
+    func.download().url(enterpriseUrl)
+        .type("document")
+        .success(queryEnterpriseURLSuccessful)
+        .error(downloadUnsuccessful)
+        .abort(downloadUnsuccessful)
+        .done();
+};
